@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ansible DevOps — Study Cards</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --p: #d500f9;
+    --s: #7b1fa2;
+    --glow: 0 0 30px #d500f988;
+    --bg: #050810;
+    --card: #0d1117;
+    --border: #1e2a3a;
+    --text: #e8edf5;
+    --muted: #7a8a9a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Particle canvas ── */
+  #particles { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5; }
+
+  /* ── Layout ── */
+  .shell {
+    position: relative;
+    z-index: 1;
+    width: min(860px, 96vw);
+    padding: 32px 0 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    animation: fadeDown .6s ease both;
+  }
+  .header .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--p)22, var(--s)22);
+    border: 1px solid var(--p)55;
+    color: var(--p);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff 30%, var(--p));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: fadeDown .6s .1s ease both;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--s), var(--p));
+    border-radius: 4px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 8px var(--p)88;
+  }
+  .counter {
+    font-size: .8rem;
+    color: var(--muted);
+    white-space: nowrap;
+    min-width: 64px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Card ── */
+  .card-wrap {
+    perspective: 1200px;
+    animation: fadeUp .5s .15s ease both;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: box-shadow .3s;
+  }
+  .card:hover { box-shadow: var(--glow); }
+
+  /* Question panel */
+  .q-panel {
+    padding: 32px 36px 28px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .q-panel::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, var(--p)18 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .q-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--p);
+    margin-bottom: 14px;
+  }
+  .q-label .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--p);
+    animation: pulse 2s infinite;
+  }
+  .q-num {
+    font-size: .72rem;
+    color: var(--muted);
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .q-text {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    font-weight: 600;
+    line-height: 1.55;
+    color: #fff;
+  }
+
+  /* Answer panel */
+  .a-panel {
+    padding: 0 36px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .6s cubic-bezier(.4,0,.2,1),
+                padding .4s ease,
+                opacity .4s ease;
+    opacity: 0;
+  }
+  .a-panel.visible {
+    max-height: 600px;
+    padding: 28px 36px 32px;
+    opacity: 1;
+  }
+  .a-label {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .a-text {
+    font-size: clamp(.9rem, 2vw, 1.05rem);
+    line-height: 1.75;
+    color: #c8d4e0;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .a-text .highlight {
+    color: var(--p);
+    font-weight: 600;
+  }
+
+  /* Reveal button */
+  .reveal-btn {
+    margin: 0 36px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 28px;
+    background: linear-gradient(135deg, var(--s)33, var(--p)22);
+    border: 1px solid var(--p)55;
+    border-radius: 12px;
+    color: var(--p);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    width: calc(100% - 72px);
+  }
+  .reveal-btn:hover {
+    background: linear-gradient(135deg, var(--s)55, var(--p)33);
+    box-shadow: var(--glow);
+    transform: translateY(-1px);
+  }
+  .reveal-btn.hidden { display: none; }
+  .reveal-btn .arrow { transition: transform .3s; font-size: 1rem; }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp .5s .25s ease both;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn:hover { border-color: var(--p)66; color: var(--p); box-shadow: var(--glow); }
+  .btn:disabled { opacity: .3; cursor: default; box-shadow: none; }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--s), var(--p)88);
+    border-color: var(--p);
+    color: #fff;
+  }
+  .btn.primary:hover { box-shadow: var(--glow); transform: translateY(-1px); }
+
+  /* Keyboard hint */
+  .hint {
+    text-align: center;
+    font-size: .72rem;
+    color: var(--muted)88;
+    animation: fadeUp .5s .35s ease both;
+  }
+  .hint kbd {
+    background: var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .68rem;
+    color: var(--muted);
+  }
+
+  /* Score / finish screen */
+  .finish {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    padding: 48px 24px;
+    animation: popIn .5s ease both;
+  }
+  .finish.show { display: flex; }
+  .finish .trophy { font-size: 4rem; animation: bounce 1s infinite; }
+  .finish h2 {
+    font-size: 2rem;
+    background: linear-gradient(135deg, #fff 30%, var(--p));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .finish p { color: var(--muted); font-size: 1rem; }
+
+  /* Mini map */
+  .minimap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    animation: fadeUp .5s .4s ease both;
+  }
+  .dot-item {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background .3s, transform .2s;
+    cursor: pointer;
+  }
+  .dot-item.seen { background: var(--s)88; }
+  .dot-item.current {
+    background: var(--p);
+    box-shadow: 0 0 6px var(--p);
+    transform: scale(1.4);
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity:0; transform:translateY(-16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes popIn {
+    from { opacity:0; transform:scale(.85); }
+    to   { opacity:1; transform:scale(1); }
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:.4; transform:scale(1.5); }
+  }
+  @keyframes bounce {
+    0%,100% { transform:translateY(0); }
+    50%      { transform:translateY(-12px); }
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform:translateX(40px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+  @keyframes slideOut {
+    from { opacity:1; transform:translateX(0); }
+    to   { opacity:0; transform:translateX(-40px); }
+  }
+  .animating-in  { animation: slideIn  .35s ease both; }
+  .animating-out { animation: slideOut .25s ease both; }
+
+  /* Responsive */
+  @media (max-width: 520px) {
+    .q-panel, .a-panel.visible, .reveal-btn { padding-left: 22px; padding-right: 22px; }
+    .reveal-btn { width: calc(100% - 44px); margin: 0 22px 22px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<div class="shell">
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">Study Mode</div>
+    <h1>Ansible DevOps</h1>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-bar">
+      <div class="progress-fill" id="prog" style="width:0%"></div>
+    </div>
+    <div class="counter" id="counter">1 / 50</div>
+  </div>
+
+  <!-- Card -->
+  <div class="card-wrap" id="cardWrap">
+    <div class="card" id="card">
+      <div class="q-panel">
+        <div class="q-label">
+          <div class="dot"></div>
+          Question
+          <span class="q-num" id="qnum">#1</span>
+        </div>
+        <div class="q-text" id="qtext"></div>
+      </div>
+      <button class="reveal-btn" id="revealBtn" onclick="revealAnswer()">
+        <span>Reveal Answer</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="a-panel" id="aPanel">
+        <div class="a-label">Answer</div>
+        <div class="a-text" id="atext"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finish -->
+  <div class="finish" id="finish">
+    <div class="trophy">🏆</div>
+    <h2>You crushed it!</h2>
+    <p>All 50 questions reviewed.<br>You're interview ready 💪</p>
+    <button class="btn primary" onclick="restart()" style="max-width:220px">
+      ↩ Start Over
+    </button>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls" id="controls">
+    <button class="btn" id="prevBtn" onclick="prev()" disabled>← Prev</button>
+    <button class="btn primary" id="nextBtn" onclick="next()">Next →</button>
+  </div>
+
+  <!-- Mini map -->
+  <div class="minimap" id="minimap"></div>
+
+  <!-- Hint -->
+  <div class="hint">
+    <kbd>←</kbd> <kbd>→</kbd> navigate &nbsp;·&nbsp; <kbd>Space</kbd> reveal answer
+  </div>
+</div>
+
+<script>
+const DATA = [{"n": 1, "q": "What is Ansible?", "a": "Ansible is an open-source automation tool used for configuration management, application deployment, and task automation."}, {"n": 2, "q": "What is the difference between Ansible and Puppet or Chef?", "a": "Ansible is agentless, while Puppet and Chef require agents installed on managed nodes. Ansible uses SSH for communication, whereas Puppet and Chef use their own agents."}, {"n": 3, "q": "What is an Ansible playbook?", "a": "An Ansible playbook is a YAML file that defines a series of tasks to be executed on remote hosts. It describes the desired state of the system."}, {"n": 4, "q": "How do you install Ansible?", "a": "sudo apt-get install ansible"}, {"n": 5, "q": "What is an Ansible role?", "a": "An Ansible role is a collection of tasks, variables, files, and templates organized in a predefined structure to simplify the management of configurations and applications."}, {"n": 6, "q": "How do you run an Ansible playbook?", "a": "ansible-playbook playbook_file.yml"}, {"n": 7, "q": "What is an Ansible inventory?", "a": "An Ansible inventory is a file that lists the managed hosts and groups them according to different criteria. It can be static or dynamic."}, {"n": 8, "q": "How do you specify which hosts to run Ansible commands against?", "a": "You can specify hosts using the -i option followed by the path to the inventory file or by using the --limit option followed by the host or group name."}, {"n": 9, "q": "What is the default location for the Ansible configuration file?", "a": "The default location for the Ansible configuration file is /etc/ansible/ansible.cfg."}, {"n": 10, "q": "How do you check the syntax of an Ansible playbook without executing it?", "a": "ansible-playbook playbook_file.yml --syntax-check"}, {"n": 11, "q": "How do you install a package using Ansible?", "a": "You can use the yum or apt module depending on the package manager of the target system. - name: Install package yum: name: package_name state: present"}, {"n": 12, "q": "How do you restart a service using Ansible?", "a": "name: Restart service service: name: service_name state: restarted"}, {"n": 13, "q": "How do you copy a file to a remote host using Ansible?", "a": "name: Copy file copy: src: /path/to/local/file dest: /path/to/remote/file"}, {"n": 14, "q": "What is Ansible Vault used for?", "a": "Ansible Vault is used for encrypting sensitive data such as passwords or keys within Ansible playbooks or files."}, {"n": 15, "q": "How do you encrypt a file using Ansible Vault?", "a": "ansible-vault encrypt file_name"}, {"n": 16, "q": "How do you decrypt a file encrypted with Ansible Vault?", "a": "ansible-vault decrypt file_name"}, {"n": 17, "q": "How do you pass variables to an Ansible playbook?", "a": "You can use the -e option followed by a key-value pair. ansible-playbook -e \"var=value\" playbook.yml"}, {"n": 18, "q": "How do you loop over a list of items in Ansible?", "a": "You can use the loop keyword along with the with_items directive. - name: Loop over items debug: msg: \"Item is {{ item }}\" loop: - item1 - item2"}, {"n": 19, "q": "How do you define a variable in Ansible?", "a": "You can define variables in the playbook or in separate variable files. vars: my_var: value"}, {"n": 20, "q": "How do you include a task file in an Ansible playbook?", "a": "include: tasks or main.yml"}, {"n": 21, "q": "How do you register the output of a command in Ansible?", "a": "You can use the register keyword. - name: Run command and register output shell: command register: result"}, {"n": 22, "q": "How do you access registered variables in Ansible?", "a": "You can access them using the result variable name. - debug: msg: \"Output is {{ result.stdout }}\""}, {"n": 23, "q": "How do you debug in Ansible?", "a": "You can use the debug module to print messages during playbook execution. - debug: msg: \"Debug message\""}, {"n": 24, "q": "How do you ignore errors in Ansible?", "a": "You can use the ignore_errors directive. - command: command_that_might_fail ignore_errors: yes"}, {"n": 25, "q": "How do you run tasks only on specific operating systems in Ansible?", "a": "You can use the when directive with the ansible_os_family variable. - name: Run only on Debian-based systems debug: msg: \"This task runs only on Debian-based systems\" when: ansible_os_family == \"Debian\""}, {"n": 26, "q": "How do you install multiple packages in Ansible?", "a": "You can use the yum or apt module with a list of packages. - name: Install multiple packages yum: name: - package1 - package2 state: present"}, {"n": 27, "q": "How do you create a directory using Ansible?", "a": "name: Create directory file: path: /path/to/directory state: directory"}, {"n": 28, "q": "How do you set up passwordless SSH for Ansible?", "a": "You can use SSH key-based authentication. ssh-keygen -t rsa ssh-copy-id user@host"}, {"n": 29, "q": "How do you check if a file exists using Ansible?", "a": "name: Check if file exists stat: path: /path/to/file register: file_info"}, {"n": 30, "q": "How do you conditionally execute tasks based on file existence in Ansible?", "a": "name: Task executes only if file exists debug: msg: \"File exists\" when: file_info.stat.exists"}, {"n": 31, "q": "How do you perform a rolling update with Ansible?", "a": "You can use the serial keyword to define the number of hosts to update simultaneously. - name: Rolling update hosts: all serial: 1"}, {"n": 32, "q": "How do you set up a cron job using Ansible?", "a": "name: Set up cron job cron: name: \"My cron job\" minute: \"0\" hour: \"*/2\" job: \"some_command\""}, {"n": 33, "q": "How do you manage users and groups using Ansible?", "a": "You can use the user and group modules. - name: Add user user: name: username state: present"}, {"n": 34, "q": "How do you manage file permissions using Ansible?", "a": "name: Set file permissions file: path: /path/to/file mode: 0644"}, {"n": 35, "q": "How do you manage SELinux using Ansible?", "a": "name: Set SELinux mode selinux: policy: targeted state: enforcing"}, {"n": 36, "q": "How do you manage firewalls using Ansible?", "a": "You can use the firewalld or iptables module. - name: Open port in firewalld firewalld: port: 80 or tcp state: enabled"}, {"n": 37, "q": "How do you perform a dry run of an Ansible playbook?", "a": "name: Dry run debug: msg: \"This is a dry run\" check_mode: yes"}, {"n": 38, "q": "How do you manage Docker containers using Ansible?", "a": "You can use the docker_container module. - name: Manage Docker container docker_container: name: my_container image: nginx state: started"}, {"n": 39, "q": "How do you manage AWS resources using Ansible?", "a": "You can use the ec2 module. - name: Provision EC2 instance ec2: key_name: my_key instance_type: t2.micro image: ami-12345678 state: present"}, {"n": 40, "q": "How do you manage Azure resources using Ansible?", "a": "You can use the azure_rm_virtualmachine module. - name: Provision Azure VM azure_rm_virtualmachine: resource_group: my_rg name: my_vm vm_size: Standard_DS1_v2 image: UbuntuLTS admin_username: azureuser admin_password: Password123! state: present"}, {"n": 41, "q": "How do you manage variables in Ansible Tower?", "a": "You can define variables in inventories, projects, or job templates."}, {"n": 42, "q": "How do you schedule jobs in Ansible Tower?", "a": "You can schedule jobs using job templates in Ansible Tower's web interface."}, {"n": 43, "q": "How do you scale Ansible Tower?", "a": "You can add more Tower nodes to an existing cluster or set up a load balancer in front of multiple Tower instances."}, {"n": 44, "q": "How do you manage secrets in Ansible Tower?", "a": "You can use Ansible Vault or integrate Tower with external secret management systems like HashiCorp Vault."}, {"n": 45, "q": "How do you monitor Ansible Tower?", "a": "You can monitor Tower using its built-in dashboard or integrate it with external monitoring tools."}, {"n": 46, "q": "How do you configure custom credentials in Ansible Tower?", "a": "You can define custom credential types and add them to job templates."}, {"n": 47, "q": "How do you handle errors in Ansible Tower job runs?", "a": "You can set up notifications for failed jobs or configure retry and failure policies."}, {"n": 48, "q": "How do you integrate Ansible with version control systems?", "a": "You can use Git to manage Ansible playbooks and roles."}, {"n": 49, "q": "How do you manage secrets in Ansible Tower?", "a": "You can use Ansible Vault to encrypt sensitive data in Tower."}, {"n": 50, "q": "How do you troubleshoot Ansible playbooks?", "a": "You can use the -vvv option to enable verbose output or review logs in Tower for failed jobs."}];
+let cur = 0;
+let seen = new Set();
+
+// ── Init minimap ──
+const mm = document.getElementById('minimap');
+DATA.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot-item';
+  d.title = `Q${i+1}`;
+  d.onclick = () => goTo(i);
+  mm.appendChild(d);
+});
+
+function render(animDir) {
+  const card = document.getElementById('card');
+  const qa   = DATA[cur];
+
+  // animate out
+  if (animDir) {
+    card.classList.add('animating-out');
+    setTimeout(() => {
+      card.classList.remove('animating-out');
+      _render(qa);
+      card.classList.add('animating-in');
+      setTimeout(() => card.classList.remove('animating-in'), 400);
+    }, 220);
+  } else {
+    _render(qa);
+  }
+}
+
+function _render(qa) {
+  document.getElementById('qnum').textContent  = '#' + cur;
+  document.getElementById('qtext').textContent = qa.q;
+  document.getElementById('atext').innerHTML   = highlightAnswer(qa.a);
+  document.getElementById('aPanel').classList.remove('visible');
+  document.getElementById('revealBtn').classList.remove('hidden');
+
+  // progress
+  const pct = Math.round((cur) / DATA.length * 100);
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('counter').textContent = (cur+1) + ' / ' + DATA.length;
+
+  // buttons
+  document.getElementById('prevBtn').disabled = cur === 0;
+  document.getElementById('nextBtn').textContent = cur === DATA.length - 1 ? 'Finish ✓' : 'Next →';
+
+  // minimap
+  document.querySelectorAll('.dot-item').forEach((d, i) => {
+    d.className = 'dot-item' + (seen.has(i) ? ' seen' : '') + (i === cur ? ' current' : '');
+  });
+}
+
+function highlightAnswer(text) {
+  // Bold key terms (words starting with capital in a technical context)
+  return text
+    .replace(/`([^`]+)`/g, '<span class="highlight">$1</span>')
+    .replace(/(Ansible|YAML|SSH|API|JSON|XML|HTTP|CLI|AWS|Azure|Docker|Git)/g,
+             '<span class="highlight">$1</span>');
+}
+
+function revealAnswer() {
+  document.getElementById('aPanel').classList.add('visible');
+  document.getElementById('revealBtn').classList.add('hidden');
+  seen.add(cur);
+  document.querySelectorAll('.dot-item')[cur].classList.add('seen');
+}
+
+function next() {
+  if (cur >= DATA.length - 1) {
+    showFinish(); return;
+  }
+  seen.add(cur);
+  cur++;
+  render('right');
+}
+
+function prev() {
+  if (cur <= 0) return;
+  cur--;
+  render('left');
+}
+
+function goTo(i) {
+  if (i === cur) return;
+  const dir = i > cur ? 'right' : 'left';
+  cur = i;
+  render(dir);
+}
+
+function showFinish() {
+  document.getElementById('cardWrap').style.display = 'none';
+  document.getElementById('controls').style.display = 'none';
+  document.getElementById('finish').classList.add('show');
+}
+
+function restart() {
+  cur = 0; seen.clear();
+  document.getElementById('cardWrap').style.display = '';
+  document.getElementById('controls').style.display = '';
+  document.getElementById('finish').classList.remove('show');
+  render(null);
+}
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'l') next();
+  if (e.key === 'ArrowLeft'  || e.key === 'h') prev();
+  if (e.key === ' ') { e.preventDefault(); revealAnswer(); }
+});
+
+// ── Particle system ──
+(function() {
+  const c  = document.getElementById('particles');
+  const ctx = c.getContext('2d');
+  const PRIMARY = '#d500f9';
+  let W, H, pts = [];
+
+  function resize() {
+    W = c.width  = window.innerWidth;
+    H = c.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function hex2rgb(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return [r,g,b];
+  }
+  const [r,g,b] = hex2rgb(PRIMARY);
+
+  for (let i = 0; i < 55; i++) {
+    pts.push({
+      x: Math.random() * 1200,
+      y: Math.random() * 800,
+      r: Math.random() * 1.5 + .5,
+      vx: (Math.random() - .5) * .3,
+      vy: (Math.random() - .5) * .3,
+      o: Math.random() * .5 + .2,
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${r},${g},${b},${p.o})`;
+      ctx.fill();
+    });
+    // draw connections
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i+1; j < pts.length; j++) {
+        const dx = pts[i].x - pts[j].x;
+        const dy = pts[i].y - pts[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x, pts[i].y);
+          ctx.lineTo(pts[j].x, pts[j].y);
+          ctx.strokeStyle = `rgba(${r},${g},${b},${.15*(1-dist/120)})`;
+          ctx.lineWidth = .5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Boot
+render(null);
+</script>
+</body>
+</html>
